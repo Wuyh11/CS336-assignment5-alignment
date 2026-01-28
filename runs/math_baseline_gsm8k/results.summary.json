@@ -1,0 +1,9 @@
+{
+  "n": 1319,
+  "mean_reward": 0.0,
+  "mean_format_reward": 0.24639878695981804,
+  "mean_answer_reward": 0.0,
+  "n_fmt1_ans1": 0,
+  "n_fmt1_ans0": 325,
+  "n_fmt0_ans0": 994
+}

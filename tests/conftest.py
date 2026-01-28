@@ -59,8 +59,20 @@ class NumpySnapshot:
         arrays_dict = actual if isinstance(actual, dict) else {"array": actual}
         arrays_dict = {k: _canonicalize_array(v) for k, v in arrays_dict.items()}
 
+        # ==========================================
+        # 【新增逻辑】如果 force_update 为 True，则保存快照并返回
+        # ==========================================
+        if force_update:
+            print(f"Updating snapshot: {snapshot_path}")
+            np.savez(snapshot_path, **arrays_dict)
+            return
+        # ==========================================
 
         # Load the snapshot
+        if not snapshot_path.exists():
+             # 如果文件不存在且不是 update 模式，报错提示更友好一点
+             raise FileNotFoundError(f"Snapshot file not found: {snapshot_path}. Try running with force_update=True.")
+             
         expected_arrays = dict(np.load(snapshot_path))
 
         # Verify all expected arrays are present
@@ -210,7 +222,7 @@ def output_strs():
 
 @pytest.fixture
 def model_id():
-    return "/data/a5-alignment/models/Qwen2.5-Math-1.5B"
+    return "models/Qwen2.5-Math-1.5B"
 
 
 @pytest.fixture
