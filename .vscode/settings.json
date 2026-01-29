@@ -1,0 +1,17 @@
+{
+    // 提示行为更像 JetBrains
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": false
+    },
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "on",
+    "editor.acceptSuggestionOnEnter": "on",
+    // 参数提示（像 IntelliJ）
+    "editor.parameterHints.enabled": true,
+    // 提示延迟，JetBrains 风格是“稍慢但更准”
+    "editor.quickSuggestionsDelay": 100,
+    // 禁止过于吵闹的 ghost text
+    "editor.inlineSuggest.enabled": false
+}
