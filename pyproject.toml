@@ -21,6 +21,7 @@ dependencies = [
     "wandb>=0.19.8",
     "xopen>=2.0.2",
     "matplotlib",
+    "tyro",
 ]
 
 [tool.setuptools.packages.find]

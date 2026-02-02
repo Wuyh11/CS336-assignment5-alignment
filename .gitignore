@@ -1,5 +1,10 @@
 *.bin
 models/
+results/
+checkpoints/
+*.safetensors
+*.pt
+*.pth
 
 nav
 tags

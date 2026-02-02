@@ -12,6 +12,12 @@ from cs336_alignment.sft_helper import compute_entropy
 from cs336_alignment.sft_helper import get_response_log_probs
 from cs336_alignment.sft_helper import masked_normalize
 from cs336_alignment.sft_helper import sft_microbatch_train_step
+from cs336_alignment.grpo_helper import compute_group_normalized_rewards
+from cs336_alignment.grpo_helper import compute_naive_policy_gradient_loss
+from cs336_alignment.grpo_helper import compute_grpo_clip_loss
+from cs336_alignment.grpo_helper import compute_policy_gradient_loss
+from cs336_alignment.grpo_helper import masked_mean
+from cs336_alignment.grpo_helper import grpo_microbatch_train_step
 
 def run_tokenize_prompt_and_output(
     prompt_strs: list[str],
@@ -80,7 +86,7 @@ def run_compute_group_normalized_rewards(
                 You may choose what you wish to log here
                 (some statistics of the rewards, etc.).
     """
-    raise NotImplementedError
+    return compute_group_normalized_rewards(reward_fn, rollout_responses, repeated_ground_truths, group_size, advantage_eps, normalize_by_std)
 
 
 def run_compute_entropy(logits: torch.Tensor) -> torch.Tensor:
@@ -134,7 +140,8 @@ def run_compute_naive_policy_gradient_loss(
         torch.Tensor of shape (batch_size, sequence_length): 
             the policy gradient per-token loss.
     """
-    raise NotImplementedError
+    loss, _ = compute_naive_policy_gradient_loss(raw_rewards_or_advantages, policy_log_probs)
+    return loss
 
 
 def run_compute_grpo_clip_loss(
@@ -161,7 +168,7 @@ def run_compute_grpo_clip_loss(
             dict[str, torch.Tensor]: metadata for the GRPO-Clip loss 
                 (used to compute clip fraction).
     """
-    raise NotImplementedError
+    return compute_grpo_clip_loss(advantages, policy_log_probs, old_log_probs, cliprange)
 
 
 def run_compute_policy_gradient_loss(
@@ -173,9 +180,51 @@ def run_compute_policy_gradient_loss(
     cliprange: float,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
     """
-    Wrapper that delegates to the appropriate policy gradient loss function above.
+    Wrapper that delegates to the appropriate policy gradient loss function.
     """
-    raise NotImplementedError
+
+    # 解决raw_rewards或advantages的维度问题
+    if loss_type == "no_baseline":
+        # 确保raw_rewards的形状与policy_log_probs一致
+        # 将 raw_rewards 扩展到 (batch_size, sequence_length)
+        raw_rewards = raw_rewards.expand(-1, policy_log_probs.size(1))  # 扩展raw_rewards
+        loss, metadata = compute_policy_gradient_loss(
+            policy_log_probs=policy_log_probs,
+            loss_type=loss_type,
+            raw_rewards=raw_rewards,
+            advantages=None,  # no advantage needed for no_baseline
+            old_log_probs=None,
+            cliprange=None
+        )
+    elif loss_type == "reinforce_with_baseline":
+        # 确保advantages的形状与policy_log_probs一致
+        # 将 advantages 扩展到 (batch_size, sequence_length)
+        advantages = advantages.expand(-1, policy_log_probs.size(1))  # 扩展advantages
+        loss, metadata = compute_policy_gradient_loss(
+            policy_log_probs=policy_log_probs,
+            loss_type=loss_type,
+            raw_rewards=None,  # no raw_rewards needed for reinforce_with_baseline
+            advantages=advantages,
+            old_log_probs=None,
+            cliprange=None
+        )
+    elif loss_type == "grpo_clip":
+        loss, metadata = compute_policy_gradient_loss(
+            policy_log_probs=policy_log_probs,
+            loss_type=loss_type,
+            raw_rewards=None,
+            advantages=advantages,
+            old_log_probs=old_log_probs,
+            cliprange=cliprange
+        )
+    else:
+        raise ValueError(f"Unsupported loss_type: {loss_type}")
+
+    # 输出结果
+    print("Loss:", loss)
+    print("Metadata:", metadata)
+
+    return loss, metadata
 
 
 def run_masked_mean(tensor: torch.Tensor, mask: torch.Tensor, dim: int | None = None) -> torch.Tensor:
@@ -194,7 +243,7 @@ def run_masked_mean(tensor: torch.Tensor, mask: torch.Tensor, dim: int | None = 
         torch.Tensor, the mean of the tensor along the specified
             dimension, considering only the elements with mask value 1.
     """
-    raise NotImplementedError
+    return masked_mean(tensor, mask, dim)
 
 def run_sft_microbatch_train_step(
     policy_log_probs: torch.Tensor,
@@ -247,7 +296,16 @@ def run_grpo_microbatch_train_step(
         tuple[torch.Tensor, dict[str, torch.Tensor]]: 
             the policy gradient loss and its metadata.
     """
-    raise NotImplementedError
+    return grpo_microbatch_train_step(
+        policy_log_probs, 
+        response_mask, 
+        gradient_accumulation_steps, 
+        loss_type, 
+        raw_rewards, 
+        advantages, 
+        old_log_probs, 
+        cliprange
+    )
 
 
 def run_masked_normalize(

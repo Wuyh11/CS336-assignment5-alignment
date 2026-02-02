@@ -1,0 +1,63 @@
+{
+  "os": "Linux-6.6.92-34.1.tl4.x86_64-x86_64-with-glibc2.39",
+  "python": "CPython 3.11.1",
+  "startedAt": "2026-02-02T13:28:09.782555Z",
+  "args": [
+    "--exp_name",
+    "sanity_check_a10",
+    "--n_grpo_steps",
+    "2",
+    "--rollout_batch_size",
+    "8",
+    "--group_size",
+    "4",
+    "--train_batch_size",
+    "8",
+    "--gradient_accumulation_steps",
+    "8",
+    "--sampling_max_tokens",
+    "512",
+    "--gpu_memory_utilization",
+    "0.2",
+    "--vllm_device",
+    "cuda:0",
+    "--policy_device",
+    "cuda:0"
+  ],
+  "program": "/workspace/CS336-assignment5-alignment/cs336_alignment/train_grpo.py",
+  "codePath": "cs336_alignment/train_grpo.py",
+  "git": {
+    "remote": "https://github.com/Wuyh11/CS336-assignment5-alignment.git",
+    "commit": "54870ce7272f5075218bd4312df87460f75f038f"
+  },
+  "root": "/workspace/CS336-assignment5-alignment",
+  "host": "2730f5d2279f",
+  "executable": "/workspace/CS336-assignment5-alignment/.venv/bin/python3",
+  "codePathLocal": "cs336_alignment/train_grpo.py",
+  "cpu_count": 14,
+  "cpu_count_logical": 28,
+  "gpu": "NVIDIA A10",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "274877906944",
+      "used": "49664294912"
+    }
+  },
+  "memory": {
+    "total": "119929212928"
+  },
+  "cpu": {
+    "count": 14,
+    "countLogical": 28
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A10",
+      "memoryTotal": "24146608128",
+      "cudaCores": 9216,
+      "architecture": "Ampere"
+    }
+  ],
+  "cudaVersion": "13.0"
+}
