@@ -5,7 +5,7 @@ from typing import Any, Callable, Literal
 
 import torch
 from torch import Tensor
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 from transformers import PreTrainedTokenizerBase
 from cs336_alignment.sft_helper import tokenize_prompt_and_output
 from cs336_alignment.sft_helper import compute_entropy
@@ -18,6 +18,10 @@ from cs336_alignment.grpo_helper import compute_grpo_clip_loss
 from cs336_alignment.grpo_helper import compute_policy_gradient_loss
 from cs336_alignment.grpo_helper import masked_mean
 from cs336_alignment.grpo_helper import grpo_microbatch_train_step
+from cs336_Instruction_Tuning.mmlu_baseline import parse_mmlu_response
+from cs336_Instruction_Tuning.gsm8k_baseline import parse_gsm8k_response
+from cs336_Instruction_Tuning.sft_data_loading import PackedSFTDataset
+from cs336_Instruction_Tuning.sft_data_loading import iterate_batches
 
 def run_tokenize_prompt_and_output(
     prompt_strs: list[str],
@@ -370,8 +374,7 @@ def get_packed_sft_dataset(
         "input_ids" contains the token IDs for the language modeling inputs, and "labels" contains
         the token IDs for the language modeling labels.
     """
-    raise NotImplementedError
-
+    return PackedSFTDataset(tokenizer, dataset_path, seq_length, shuffle)
 
 def run_iterate_batches(
     dataset: Dataset,
@@ -393,7 +396,7 @@ def run_iterate_batches(
     Returns:
         Iterable over batches, where each batch has size `batch_size`.
     """
-    raise NotImplementedError
+    return iterate_batches(dataset, batch_size, shuffle)
 
 
 def run_parse_mmlu_response(
@@ -419,7 +422,7 @@ def run_parse_mmlu_response(
         str (one of "A", "B", "C", or "D") if the model output can be parsed into a prediction,
         else None.
     """
-    raise NotImplementedError
+    return parse_mmlu_response(mmlu_example, model_output)
 
 
 def run_parse_gsm8k_response(
@@ -436,8 +439,7 @@ def run_parse_gsm8k_response(
         str with the predicted numeric answer if the model output can be parsed into a prediction,
         else None.
     """
-    raise NotImplementedError
-
+    return parse_gsm8k_response(model_output)
 
 def run_compute_per_instance_dpo_loss(
     lm: torch.nn.Module,
