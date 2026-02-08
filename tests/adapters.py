@@ -22,6 +22,7 @@ from cs336_Instruction_Tuning.mmlu_baseline import parse_mmlu_response
 from cs336_Instruction_Tuning.gsm8k_baseline import parse_gsm8k_response
 from cs336_Instruction_Tuning.sft_data_loading import PackedSFTDataset
 from cs336_Instruction_Tuning.sft_data_loading import iterate_batches
+from cs336_Instruction_Tuning.dpo_loss import per_instance_dpo
 
 def run_tokenize_prompt_and_output(
     prompt_strs: list[str],
@@ -473,4 +474,4 @@ def run_compute_per_instance_dpo_loss(
     Returns:
         torch.Tensor with the DPO loss for this example.
     """
-    raise NotImplementedError
+    return per_instance_dpo(lm, lm_ref, tokenizer, prompt, response_chosen, response_rejected, beta);
